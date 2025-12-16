@@ -1,0 +1,101 @@
+﻿############################
+# JetBrains Rider
+############################
+.idea/
+*.sln.iml
+
+# Rider plugin caches
+.idea_modules/
+*.rider/
+
+############################
+# Visual Studio / .NET
+############################
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+arm64/
+bld/
+[Bb]in/
+[Oo]bj/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Generated files
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.mdb
+*.bak
+*.db
+*.db-shm
+*.db-wal
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+*.psmdcp
+.nuget/
+
+# Entity Framework
+Migrations/obj/
+*.jfm
+
+# ASP.NET publish
+.publish/
+*.pubxml
+*.pubxml.user
+
+# Roslyn
+*.ide/
+
+############################
+# OS-specific
+############################
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX/
+
+############################
+# Logs
+############################
+*.log
+logs/
+*.svclog
+*.scc
+
+############################
+# Optional - remove if needed
+############################
+
+# DotCover
+*.dotCover
+
+# Rider local history
+.idea/.history/
+*.vs
