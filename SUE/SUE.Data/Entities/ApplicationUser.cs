@@ -1,8 +1,10 @@
-﻿namespace SUE.Data.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 
-using Microsoft.AspNetCore.Identity;
-
-public class ApplicationUser : IdentityUser<Guid>
+namespace SUE.Data.Entities
 {
-  
+    public class ApplicationUser : IdentityUser<Guid>
+    {
+     
+    }
 }
