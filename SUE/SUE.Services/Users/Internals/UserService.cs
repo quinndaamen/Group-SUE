@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace SUE.Services.Users.Internals
 {
-    public class SensorOnboardingService : IUserOnboardingService
+    public class UserService : IUserService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _context;
 
-        public SensorOnboardingService(UserManager<ApplicationUser> userManager, AppDbContext context)
+        public UserService(UserManager<ApplicationUser> userManager, AppDbContext context)
         {
             _userManager = userManager;
             _context = context;
@@ -66,39 +66,21 @@ namespace SUE.Services.Users.Internals
             _context.UserProfiles.Add(profile);
 
             // 4️⃣ Seed SensorNodes (indoor/outdoor)
-            var indoorDHT11 = new SensorNode
+            var indoorNode = new SensorNode
             {
                 Id = Guid.NewGuid(),
                 HouseholdId = household.Id,
                 Location = SensorNode.SensorLocation.Indoor,
-                SensorName = "DHT11"
+                SensorName = "Indoor Node 1"
             };
-            
-            var indoorMQ135 = new SensorNode
-            {
-                Id = Guid.NewGuid(),
-                HouseholdId = household.Id,
-                Location = SensorNode.SensorLocation.Indoor,
-                SensorName = "MQ135"
-            };
-            
-            var outdoorDHT11 = new SensorNode
+            var outdoorNode = new SensorNode
             {
                 Id = Guid.NewGuid(),
                 HouseholdId = household.Id,
                 Location = SensorNode.SensorLocation.Outdoor,
-                SensorName = "DHT11"
+                SensorName = "Outdoor Node 1"
             };
-            
-            var outdoorMQ135 = new SensorNode
-            {
-                Id = Guid.NewGuid(),
-                HouseholdId = household.Id,
-                Location = SensorNode.SensorLocation.Outdoor,
-                SensorName = "MQ135"
-            }; 
-            
-            _context.SensorNodes.AddRange(indoorDHT11, outdoorDHT11, indoorMQ135, outdoorMQ135);
+            _context.SensorNodes.AddRange(indoorNode, outdoorNode);
 
             await _context.SaveChangesAsync();
 

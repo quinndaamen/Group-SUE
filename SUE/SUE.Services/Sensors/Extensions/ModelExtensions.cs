@@ -5,11 +5,11 @@ using SUE.Services.Users.Internals;
 
 namespace SUE.Services.Sensors.Extensions
 {
-    public static class ServiceCollectionExtensions
+    public static class ModelExtensions
     {
         public static IServiceCollection AddUsersServices(this IServiceCollection services)
         {
-            services.AddScoped<IUserOnboardingService, SensorOnboardingService>();
+            services.AddScoped<IUserService, SensorService>();
             return services;
         }
 

@@ -20,8 +20,12 @@ public class Program
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddControllersWithViews();
-
+        
+        builder.Services.AddHttpClient<ElectricityPriceForecast>();
+    
         var app = builder.Build();
+        
+        
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

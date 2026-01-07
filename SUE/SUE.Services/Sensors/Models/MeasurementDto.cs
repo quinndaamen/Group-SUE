@@ -9,7 +9,7 @@ namespace SUE.Services.Sensors.Models
         // DHT11 + MQ135
         public double? Temperature { get; set; }
         public double? Humidity { get; set; }
-        public double? AQI_MQ135 { get; set; }
+        public double? AQI { get; set; }
 
         // P1
         public double? EnergyUsage { get; set; }
