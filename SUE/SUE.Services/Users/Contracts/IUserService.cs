@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SUE.Services.Users.Contracts
 {
-    public interface IUserOnboardingService
+    public interface IUserService
     {
         Task<UserProfileDto> RegisterUserAsync(RegisterModel model);
     }
