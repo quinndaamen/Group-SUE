@@ -1,0 +1,36 @@
+﻿@model List<CleanForecastItem>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Electricity Price Forecast</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7f7; }
+        table { border-collapse: collapse; width: 300px; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #555; color: #fff; }
+        td { background-color: #eee; }
+    </style>
+</head>
+<body>
+<h2>Electricity Price Forecast (EUR/kWh)</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Time</td>
+            <td>@item.PriceEURPerKWh.ToString("0.0000") €</td>
+        </tr>
+    }
+    </tbody>
+</table>
+</body>
+</html>
