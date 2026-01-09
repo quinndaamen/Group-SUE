@@ -22,6 +22,10 @@ public class Program
         builder.Services.AddControllersWithViews();
         
         builder.Services.AddHttpClient<ElectricityPriceForecast>();
+        
+        builder.Services.AddControllersWithViews();
+        builder.Services.AddHttpClient<ElectricityPriceForecast>();
+
     
         var app = builder.Build();
         
