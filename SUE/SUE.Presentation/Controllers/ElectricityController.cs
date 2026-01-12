@@ -6,18 +6,20 @@ namespace SUE.Presentation.Controllers
 {
     public class ElectricityController : Controller
     {
-        private readonly ElectricityPriceForecast _forecastService;
+        private readonly ElectricityPriceCacheService _priceService;
 
-        public ElectricityController(ElectricityPriceForecast forecastService)
+        public ElectricityController(ElectricityPriceCacheService priceService)
         {
-            _forecastService = forecastService;
+            _priceService = priceService;
         }
 
         // GET: /Electricity/PriceForecast
         public async Task<IActionResult> PriceForecast()
         {
-            List<CleanForecastItem> forecast = await _forecastService.GetForecastAsync();
-            return View(forecast); // passes forecast to the view
+            List<CleanForecastItem> forecast =
+                await _priceService.GetForecastAsync();
+
+            return View(forecast);
         }
     }
 }

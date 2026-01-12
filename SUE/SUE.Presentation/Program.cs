@@ -21,12 +21,11 @@ public class Program
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddControllersWithViews();
         
-        builder.Services.AddHttpClient<ElectricityPriceForecast>();
+        builder.Services.AddHttpClient<ElectricityPriceApiClient>();
         
-        builder.Services.AddControllersWithViews();
-        builder.Services.AddHttpClient<ElectricityPriceForecast>();
-
-    
+        builder.Services.AddSingleton<ElectricityPriceCacheService>();
+        
+        
         var app = builder.Build();
         
         

@@ -5,42 +5,41 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-public class ElectricityPriceForecast
+public class ElectricityPriceApiClient
 {
     private readonly HttpClient _client;
+    private const string Url = "http://127.0.0.1:8000/predict";
 
-    public ElectricityPriceForecast(HttpClient client)
+    public ElectricityPriceApiClient(HttpClient client)
     {
         _client = client;
     }
 
-    public async Task<List<CleanForecastItem>> GetForecastAsync()
+    // Expensive operation: NETWORK CALL
+    public async Task<List<CleanForecastItem>> FetchForecastAsync()
     {
-        var url = "http://127.0.0.1:8000/predict"; // FastAPI endpoint
-        var raw = await _client.GetFromJsonAsync<List<ForecastItem>>(url) ?? new List<ForecastItem>();
+        var raw = await _client.GetFromJsonAsync<List<ForecastItem>>(Url)
+                  ?? throw new Exception("API returned null");
 
-        // Clean & convert MWh → kWh
         return raw
             .OrderBy(f => f.Datetime_Local)
             .Select(f => new CleanForecastItem
             {
-                Time = f.Datetime_Local.ToString("HH:mm"),
+                Time = f.Datetime_Local, // KEEP DATE, don't nuke it
                 PriceEURPerKWh = Math.Round(f.Predicted_Price / 1000, 4)
             })
             .ToList();
     }
 }
 
-// Raw item from API
 public class ForecastItem
 {
     public DateTime Datetime_Local { get; set; }
     public double Predicted_Price { get; set; } // EUR/MWh
 }
 
-// Cleaned item for frontend display
 public class CleanForecastItem
 {
-    public string Time { get; set; }
+    public DateTime Time { get; set; }
     public double PriceEURPerKWh { get; set; } // EUR/kWh
 }
