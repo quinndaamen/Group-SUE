@@ -20,7 +20,6 @@ public class Program
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddControllersWithViews();
-        
         builder.Services.AddHttpClient<ElectricityPriceApiClient>();
         
         builder.Services.AddSingleton<ElectricityPriceCacheService>();

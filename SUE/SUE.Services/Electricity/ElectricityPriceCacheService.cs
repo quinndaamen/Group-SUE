@@ -10,7 +10,7 @@ public class ElectricityPriceCacheService
     private readonly ElectricityPriceApiClient _apiClient;
 
     private List<CleanForecastItem>? _cachedData;
-    private DateTime _lastUpdatedUtc;
+    private DateTimeOffset _lastUpdatedUtc;
 
     private static readonly TimeSpan Ttl = TimeSpan.FromHours(1);
     private static readonly string CacheFilePath = "price_cache.json";
@@ -38,7 +38,7 @@ public class ElectricityPriceCacheService
             {
                 var fresh = await _apiClient.FetchForecastAsync();
                 _cachedData = fresh;
-                _lastUpdatedUtc = DateTime.UtcNow;
+                _lastUpdatedUtc = DateTimeOffset.UtcNow;
                 SaveToFile();
             }
             catch
@@ -60,7 +60,7 @@ public class ElectricityPriceCacheService
     private bool IsCacheValid()
     {
         return _cachedData != null &&
-               DateTime.UtcNow - _lastUpdatedUtc < Ttl;
+               DateTimeOffset.UtcNow - _lastUpdatedUtc < Ttl;
     }
 
     private void LoadFromFile()
@@ -96,7 +96,7 @@ public class ElectricityPriceCacheService
 
     private class FileCache
     {
-        public DateTime LastUpdatedUtc { get; set; }
+        public DateTimeOffset LastUpdatedUtc { get; set; }
         public List<CleanForecastItem> Data { get; set; } = new();
     }
 }
