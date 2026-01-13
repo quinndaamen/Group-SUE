@@ -1,36 +1,152 @@
 ﻿@model List<CleanForecastItem>
 
+@{
+    var current = Model.First();
+    var avgPrice = Model.Average(x => x.PriceEURPerKWh);
+
+    var status =
+        current.PriceEURPerKWh < avgPrice * 0.9 ? "Low" :
+        current.PriceEURPerKWh > avgPrice * 1.1 ? "High" :
+        "Medium";
+
+    var statusColor =
+        status == "Low" ? "#D1FAE5" :
+        status == "High" ? "#FEE2E2" :
+        "#FFE4C4";
+
+    var recommendation =
+        status == "Low"
+            ? "Good time to use energy."
+            : "Could be smart to wait a few hours.";
+
+    var cheapestBlock = Model
+        .OrderBy(x => x.PriceEURPerKWh)
+        .Take(3)
+        .OrderBy(x => x.Time)
+        .ToList();
+
+    var savings =
+        (1 - cheapestBlock.Average(x => x.PriceEURPerKWh) / current.PriceEURPerKWh) * 100;
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Electricity Price Forecast</title>
+    <meta charset="utf-8" />
+    <title>Energy Price Status</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7f7; }
-        table { border-collapse: collapse; width: 300px; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-        th { background-color: #555; color: #fff; }
-        td { background-color: #eee; }
+        body {
+            background: #f5f6fa;
+            font-family: system-ui, sans-serif;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 420px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .status {
+            background: @statusColor;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-header .icon {
+            font-size: 20px;
+        }
+
+        .price {
+            font-size: 28px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .sub {
+            color: #666;
+            margin-top: 4px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            margin: 8px 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .box {
+            background: #f1f3f6;
+            border-radius: 10px;
+            padding: 14px;
+            width: 48%;
+            text-align: center;
+        }
+
+        .muted {
+            color: #777;
+            font-size: 14px;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
 <body>
-<h2>Electricity Price Forecast (EUR/kWh)</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Time</th>
-        <th>Price</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Time</td>
-            <td>@item.PriceEURPerKWh.ToString("0.0000") €</td>
-        </tr>
-    }
-    </tbody>
-</table>
+<div class="card">
+    <h2>Energy Price Status</h2>
+    <p class="muted">Real-time electricity pricing recommendations</p>
+
+    <div class="status">
+        <div class="status-header">
+            <i class="fas fa-bolt icon"></i> <!-- electricity icon -->
+            <strong>@status Price</strong>
+            <div class="price">@current.PriceEURPerKWh.ToString("0.00") €</div>
+        </div>
+        <div class="sub">per kWh</div>
+        <hr />
+        <p><strong>@recommendation</strong></p>
+    </div>
+
+    <div class="status" style="background:#EEF2FF;">
+        <div class="status-header">
+            <i class="fas fa-clock icon"></i> <!-- clock icon -->
+            <strong>Next Lowest Price</strong>
+        </div>
+        <div class="sub">
+            @cheapestBlock.First().Time.ToString("HH") – @cheapestBlock.Last().Time.ToString("HH") h
+        </div>
+        <div class="muted">
+            Expected price:
+            @cheapestBlock.Average(x => x.PriceEURPerKWh).ToString("0.00") €/kWh
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="box">
+            <strong>Daily Average</strong>
+            <div>@avgPrice.ToString("0.00") €/kWh</div>
+        </div>
+        <div class="box">
+            <strong>Potential Savings</strong>
+            <div>@Math.Max(0, savings).ToString("0") %</div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

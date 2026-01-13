@@ -34,12 +34,13 @@ public class ElectricityPriceApiClient
 
 public class ForecastItem
 {
-    public DateTime Datetime_Local { get; set; }
-    public double Predicted_Price { get; set; } // EUR/MWh
+    public DateTimeOffset Datetime_Local { get; set; }
+    public double Predicted_Price { get; set; }
+
 }
 
 public class CleanForecastItem
 {
-    public DateTime Time { get; set; }
+    public DateTimeOffset Time { get; set; }
     public double PriceEURPerKWh { get; set; } // EUR/kWh
 }
