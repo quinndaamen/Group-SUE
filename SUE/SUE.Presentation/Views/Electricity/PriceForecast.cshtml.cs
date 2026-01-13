@@ -6,11 +6,11 @@ namespace SUE.Presentation.Views.Electricity.PriceForecast
 {
     public class PriceForecastModel : PageModel
     {
-        private readonly ElectricityPriceForecast _forecastService;
+        private readonly ElectricityPriceApiClient _apiClientService;
 
-        public PriceForecastModel(ElectricityPriceForecast forecastService)
+        public PriceForecastModel(ElectricityPriceApiClient apiClientService)
         {
-            _forecastService = forecastService;
+            _apiClientService = apiClientService;
         }
 
         // This will be available in the Razor page

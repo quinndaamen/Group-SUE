@@ -20,13 +20,11 @@ public class Program
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddControllersWithViews();
+        builder.Services.AddHttpClient<ElectricityPriceApiClient>();
         
-        builder.Services.AddHttpClient<ElectricityPriceForecast>();
+        builder.Services.AddSingleton<ElectricityPriceCacheService>();
         
-        builder.Services.AddControllersWithViews();
-        builder.Services.AddHttpClient<ElectricityPriceForecast>();
-
-    
+        
         var app = builder.Build();
         
         
