@@ -5,6 +5,6 @@ namespace SUE.Data.Entities
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
-     
+        public string PostCode { get; set; }
     }
 }
