@@ -8,13 +8,18 @@ using Microsoft.AspNetCore.Authorization;
 namespace SUE.Presentation.Controllers
 {
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-    public class ElectricityController : Controller
+    public class DetailsController : Controller
     {
         private readonly ElectricityPriceCacheService _priceService;
 
-        public ElectricityController(ElectricityPriceCacheService priceService)
+        public DetailsController(ElectricityPriceCacheService priceService)
         {
             _priceService = priceService;
+        }
+
+        public IActionResult Air()
+        {
+            return View();
         }
 
         // GET: /Electricity/Details
