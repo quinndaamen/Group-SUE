@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SUE.Data;
+using SUE.Data.Entities;
 using SUE.Presentation.Data;
 
 namespace SUE.Presentation;
@@ -30,9 +32,18 @@ public class Program
             options.UseSqlite(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedEmail = false;
+            options.Password.RequiredLength = 6;
+        })
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+        
         builder.Services.AddControllersWithViews();
+        builder.Services.AddRazorPages();
+        builder.Services.AddData(builder.Configuration);
         builder.Services.AddHttpClient<ElectricityPriceApiClient>();
         
         builder.Services.AddSingleton<ElectricityPriceCacheService>();

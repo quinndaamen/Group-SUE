@@ -10,6 +10,7 @@ using SUE.Presentation.Models;
 
 namespace SUE.Presentation.Controllers;
 
+[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 public class AuthController : Controller
 {
     private readonly UserManager<ApplicationUser> userManager;
@@ -101,6 +102,8 @@ public class AuthController : Controller
             {
                 UserName = model.Email,
                 Email = model.Email,
+                PostCode = model.PostCode,
+                PhoneNumber = model.PhoneNumber,
             };
             var result = await this.userManager.CreateAsync(
                 user,
