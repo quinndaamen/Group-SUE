@@ -13,13 +13,12 @@ namespace SUE.Presentation.Controllers
             _priceService = priceService;
         }
 
-        // GET: /Electricity/PriceForecast
-        public async Task<IActionResult> PriceForecast()
+        // GET: /Electricity/Details
+        public async Task<IActionResult> Details()
         {
-            List<CleanForecastItem> forecast =
-                await _priceService.GetForecastAsync();
+            List<CleanForecastItem> forecast = await _priceService.GetForecastAsync();
 
-            return View(forecast);
+            return View(forecast); // automatically looks for Details.cshtml
         }
     }
 }
