@@ -1,0 +1,459 @@
+﻿@{
+    ViewData["Title"] = "Air Quality Graph";
+}
+<style>
+    .dashboard {
+        padding: 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .dashboard h1 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #0A0A0A;
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        color: #717182;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .metric-label {
+        color: #717182;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #0A0A0A;
+        margin: 5px 0;
+    }
+    
+    .metric-value-large {
+        font-size: 36px;
+        font-weight: bold;
+        margin: 15px 0;
+    }
+    
+    .aqi-good {
+        color: #00C950;
+        font-weight: 500;
+    }
+    
+    /* Graph Container Styles */
+    .graph-container {
+        position: relative;
+        height: 350px;
+        width: 100%;
+        margin: 20px 0;
+    }
+    
+    .graph-axes {
+        position: absolute;
+        top: 0;
+        left: 50px;
+        right: 20px;
+        bottom: 50px;
+        border-left: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .y-axis {
+        position: absolute;
+        left: -50px;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    .y-label {
+        color: #717182;
+        font-size: 12px;
+        text-align: right;
+        padding-right: 10px;
+    }
+    
+    .x-axis {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -40px;
+        height: 40px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .x-label {
+        color: #717182;
+        font-size: 12px;
+        text-align: center;
+        width: 40px;
+        transform: rotate(-45deg);
+        transform-origin: top left;
+    }
+    
+    .graph-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+    }
+    
+    .data-point {
+        flex: 1;
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+    
+    .point-value {
+        height: var(--point-height, 50%);
+        width: 8px;
+        background-color: #155DFC;
+        border-radius: 4px;
+        transition: height 0.3s ease;
+    }
+    
+    .point-value:hover {
+        background-color: #3B82F6;
+    }
+    
+    .point-label {
+        position: absolute;
+        bottom: -25px;
+        font-size: 11px;
+        color: #717182;
+        transform: rotate(-45deg);
+        white-space: nowrap;
+    }
+    
+    /* Stats Cards Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    
+    .stat-card-highlight {
+        background: linear-gradient(148deg, rgba(219, 234, 254, 1) 0%, rgba(239, 246, 255, 1) 100%);
+    }
+    
+    .stat-title {
+        color: #717182;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .stat-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #0A0A0A;
+        margin-bottom: 8px;
+    }
+    
+    .stat-status {
+        color: #00C950;
+        font-weight: 500;
+        font-size: 16px;
+    }
+    
+    .stat-unit {
+        font-size: 16px;
+        color: #717182;
+        margin-left: 4px;
+    }
+    
+    /* Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .header-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .nav-button {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 8px 16px;
+        color: #0A0A0A;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .nav-button:hover {
+        background: #f8f9fa;
+        border-color: #d1d5db;
+    }
+    
+    .nav-button.active {
+        background: #000000;
+        color: white;
+        border-color: #000000;
+    }
+    
+    /* AQI Color Indicators */
+    .aqi-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .aqi-good-indicator {
+        background-color: #00C950;
+    }
+    
+    .aqi-moderate-indicator {
+        background-color: #FFD700;
+    }
+    
+    .aqi-unhealthy-indicator {
+        background-color: #FF8C00;
+    }
+</style>
+
+<div class="dashboard">
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1>S.U.E - Air Quality</h1>
+            <p class="subtitle">Eindhoven, North Brabant - Air quality index over the last 24 hours</p>
+        </div>
+        <div class="header-buttons">
+            <a href="/" class="nav-button">Home</a>
+            <button class="nav-button active">Graphs</button>
+            <button class="nav-button">Logout</button>
+        </div>
+    </div>
+
+    <!-- Graph Card -->
+    <div class="card">
+        <h2>24-Hour Air Quality</h2>
+        <p class="metric-label">Hourly AQI measurements</p>
+        
+        <div class="graph-container">
+            <div class="graph-axes">
+                <!-- Y Axis Labels -->
+                <div class="y-axis">
+                    <div class="y-label">80 AQI</div>
+                    <div class="y-label">60 AQI</div>
+                    <div class="y-label">40 AQI</div>
+                    <div class="y-label">20 AQI</div>
+                    <div class="y-label">0 AQI</div>
+                </div>
+                
+                <!-- X Axis Labels -->
+                <div class="x-axis">
+                    <div class="x-label">00:00</div>
+                    <div class="x-label">01:00</div>
+                    <div class="x-label">02:00</div>
+                    <div class="x-label">03:00</div>
+                    <div class="x-label">04:00</div>
+                    <div class="x-label">05:00</div>
+                    <div class="x-label">06:00</div>
+                    <div class="x-label">07:00</div>
+                    <div class="x-label">08:00</div>
+                    <div class="x-label">09:00</div>
+                    <div class="x-label">10:00</div>
+                    <div class="x-label">11:00</div>
+                    <div class="x-label">12:00</div>
+                    <div class="x-label">13:00</div>
+                    <div class="x-label">14:00</div>
+                    <div class="x-label">15:00</div>
+                    <div class="x-label">16:00</div>
+                    <div class="x-label">17:00</div>
+                    <div class="x-label">18:00</div>
+                    <div class="x-label">19:00</div>
+                    <div class="x-label">20:00</div>
+                    <div class="x-label">21:00</div>
+                    <div class="x-label">22:00</div>
+                    <div class="x-label">23:00</div>
+                    <div class="x-label">00:00</div>
+                </div>
+                
+                <!-- Graph Data Points -->
+                <div class="graph-line" id="airQualityGraph">
+                    <!-- Points will be generated by JavaScript -->
+                </div>
+                
+                <!-- Current Marker -->
+                <div class="peak-marker" style="top: 25%; left: 78%; background-color: #155DFC;">
+                    Current: 31 AQI
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card-highlight">
+            <div class="stat-title">Current AQI</div>
+            <div class="stat-number">31 <span class="stat-unit">AQI</span></div>
+            <div class="stat-status">
+                <span class="aqi-indicator aqi-good-indicator"></span>
+                Good
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-title">24h Average</div>
+            <div class="stat-number">43 <span class="stat-unit">AQI</span></div>
+            <div class="stat-status">
+                <span class="aqi-indicator aqi-good-indicator"></span>
+                Good
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-title">Range (Low - High)</div>
+            <div class="stat-number">28 - 61 <span class="stat-unit">AQI</span></div>
+            <div class="stat-status">
+                <span class="aqi-indicator aqi-good-indicator"></span>
+                Good Range
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample air quality data (24 hours)
+    const airQualityData = [
+        45, 42, 40, 38, 36, 35, 34, 33, 32, 31,
+        30, 31, 33, 35, 38, 40, 42, 44, 46, 48,
+        50, 52, 55, 61
+    ];
+    
+    const graphElement = document.getElementById('airQualityGraph');
+    
+    // Generate graph points
+    airQualityData.forEach((value, index) => {
+        const pointContainer = document.createElement('div');
+        pointContainer.className = 'data-point';
+        
+        const point = document.createElement('div');
+        point.className = 'point-value';
+        
+        // Calculate height percentage (max 80 AQI scale)
+        const heightPercent = (value / 80) * 100;
+        point.style.height = `${heightPercent}%`;
+        point.style.setProperty('--point-height', `${heightPercent}%`);
+        
+        // Determine AQI color
+        if (value <= 50) {
+            point.style.backgroundColor = '#00C950'; // Good
+        } else if (value <= 100) {
+            point.style.backgroundColor = '#FFD700'; // Moderate
+        } else {
+            point.style.backgroundColor = '#FF8C00'; // Unhealthy
+        }
+        
+        // Add tooltip
+        point.title = `${index}:00 - ${value} AQI`;
+        
+        pointContainer.appendChild(point);
+        
+        // Add time label for every 3rd hour
+        if (index % 3 === 0) {
+            const label = document.createElement('div');
+            label.className = 'point-label';
+            label.textContent = `${index.toString().padStart(2, '0')}:00`;
+            pointContainer.appendChild(label);
+        }
+        
+        graphElement.appendChild(pointContainer);
+    });
+    
+    // Add interactivity
+    const points = document.querySelectorAll('.point-value');
+    points.forEach(point => {
+        point.addEventListener('mouseenter', function() {
+            const originalColor = this.style.backgroundColor;
+            this.style.transform = 'scale(1.2)';
+            this.style.filter = 'brightness(1.2)';
+        });
+        
+        point.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.filter = 'brightness(1)';
+        });
+    });
+    
+    // Update AQI status based on value
+    function updateAqiStatus(value, element) {
+        let status = '';
+        let color = '';
+        
+        if (value <= 50) {
+            status = 'Good';
+            color = '#00C950';
+        } else if (value <= 100) {
+            status = 'Moderate';
+            color = '#FFD700';
+        } else if (value <= 150) {
+            status = 'Unhealthy for Sensitive Groups';
+            color = '#FF8C00';
+        } else if (value <= 200) {
+            status = 'Unhealthy';
+            color = '#FF4500';
+        } else if (value <= 300) {
+            status = 'Very Unhealthy';
+            color = '#8B0000';
+        } else {
+            status = 'Hazardous';
+            color = '#800080';
+        }
+        
+        if (element) {
+            element.textContent = status;
+            element.style.color = color;
+            // Update indicator color
+            const indicator = element.querySelector('.aqi-indicator');
+            if (indicator) {
+                indicator.style.backgroundColor = color;
+            }
+        }
+    }
+    
+    // Update status for current AQI
+    const currentAqi = 31;
+    updateAqiStatus(currentAqi, document.querySelector('.stat-status'));
+</script>
