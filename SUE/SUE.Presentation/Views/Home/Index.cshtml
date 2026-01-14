@@ -7,31 +7,31 @@
         background-color: #f8f9fa;
         min-height: 100vh;
     }
-    
+
     .welcome-section {
         margin-bottom: 30px;
     }
-    
+
     .dashboard h1 {
         font-size: 24px;
         font-weight: bold;
         color: #0A0A0A;
         margin-bottom: 5px;
     }
-    
+
     .dashboard h2 {
         font-size: 18px;
         font-weight: 600;
         color: #0A0A0A;
         margin-bottom: 10px;
     }
-    
+
     .subtitle {
         color: #717182;
         font-size: 16px;
         margin-bottom: 20px;
     }
-    
+
     .card {
         background: white;
         border-radius: 12px;
@@ -39,110 +39,117 @@
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 20px;
         height: 100%;
+        transition: 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
     }
-    
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+    }
+
     .main-card {
         height: 100%;
     }
-    
+
     .metric-value {
         font-size: 48px;
         font-weight: bold;
         margin: 15px 0;
     }
-    
+
     .metric-label {
         color: #717182;
         font-size: 14px;
         margin-bottom: 5px;
     }
-    
+
     .quality-good {
         color: #00A63D;
         font-weight: 500;
         font-size: 16px;
         margin-bottom: 20px;
     }
-    
+
     .stats-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 15px;
         margin-top: 20px;
     }
-    
+
     .stat-box {
         background: #F9FAFB;
         border-radius: 8px;
         padding: 15px;
         text-align: center;
     }
-    
+
     .stat-value {
         font-size: 24px;
         font-weight: bold;
         color: #0A0A0A;
         margin: 5px 0;
     }
-    
+
     .stat-unit {
         font-size: 14px;
         color: #0A0A0A;
     }
-    
+
     .temperature-box {
         background: #EFF6FF;
         border-radius: 8px;
         padding: 15px;
         margin-top: 20px;
     }
-    
+
     .temp-value {
         font-size: 24px;
         font-weight: bold;
         color: #0A0A0A;
     }
-    
+
     .improvement {
         color: #00A63D;
         font-weight: 500;
     }
-    
+
     .cost {
         color: #00A63D;
         font-weight: bold;
         font-size: 20px;
     }
-    
+
     .small-cards {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 15px;
         margin-top: 20px;
     }
-    
-    /* UPDATED STYLES with new colors */
+
+    /* Monitoring section styles */
     .monitoring-section {
         border-radius: 10px;
         padding: 20px;
         text-align: center;
         margin: 20px 0;
     }
-    
-    /* Air Quality - Light Green */
+
     .aqi-section {
         background: linear-gradient(117deg, #DCFCE7 0%, #BBF7D0 100%);
     }
-    
+
     .aqi-value {
         color: #00C950;
     }
-    
-    /* Electricity - #FFF7ED (cream/orange) */
+
     .power-section {
         background: #FFF7ED;
     }
-    
+
     .power-value {
         color: #D08700;
     }
@@ -159,63 +166,60 @@
     <div class="row">
         <!-- Air Quality Card -->
         <div class="col-md-6">
-            <div class="card main-card">
+            <a asp-controller="AirQuality" asp-action="Details" class="card main-card">
                 <h2>Air Quality</h2>
                 <p class="metric-label">Real-time monitoring</p>
-                
-                <!-- Air Quality Index Box - Light Green -->
+
                 <div class="monitoring-section aqi-section">
                     <p class="metric-label">Air Quality Index</p>
                     <div class="metric-value aqi-value">42</div>
                     <p class="metric-label">AQI</p>
                     <p class="metric-label">Live monitoring</p>
                 </div>
-                
+
                 <p class="quality-good">Air Quality: Good</p>
-                
-                <!-- CO2 and Humidity cards only -->
+
                 <div class="stats-grid">
                     <div class="stat-box">
                         <p class="metric-label">CO₂</p>
                         <div class="stat-value">420</div>
                         <p class="stat-unit">ppm</p>
                     </div>
-                    
+
                     <div class="stat-box">
                         <p class="metric-label">Humidity</p>
                         <div class="stat-value">55</div>
                         <p class="stat-unit">%</p>
                     </div>
                 </div>
-                
+
                 <div class="temperature-box">
                     <p class="metric-label">Temperature</p>
-                    <P class="metric-lable"> Outside Temperature </P>
+                    <p class="metric-label">Outside Temperature</p>
                     <div class="temp-value">22°C</div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Electricity Usage Card -->
         <div class="col-md-6">
-            <div class="card main-card">
+            <a asp-controller="Electricity" asp-action="Details" class="card main-card">
                 <h2>Electricity Usage</h2>
                 <p class="metric-label">Power consumption</p>
-                
-                <!-- Electricity Box - #FFF7ED -->
+
                 <div class="monitoring-section power-section">
                     <p class="metric-label">Current Usage</p>
                     <div class="metric-value power-value">3.2</div>
                     <p class="metric-label">kW</p>
                     <p class="metric-label">Live monitoring</p>
                 </div>
-                
+
                 <div class="stat-box" style="margin: 15px 0;">
                     <p class="metric-label">Today's Usage</p>
                     <div class="stat-value">45.8</div>
                     <p class="metric-label">kWh</p>
                 </div>
-                
+
                 <div class="row" style="margin: 15px 0;">
                     <div class="col-8">
                         <p class="metric-label">This Month</p>
@@ -227,12 +231,12 @@
                         <div class="cost">$89.5</div>
                     </div>
                 </div>
-                
+
                 <div class="temperature-box">
                     <p class="metric-label">vs. Last Month</p>
                     <div class="improvement">↓ 12% Lower</div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -242,18 +246,18 @@
             <p class="metric-label">Devices Online</p>
             <div class="stat-value">12</div>
         </div>
-        
+
         <div class="card">
             <p class="metric-label">Active Rooms</p>
             <div class="stat-value">5</div>
         </div>
-        
+
         <div class="card">
             <p class="metric-label">Daily Average</p>
             <div class="stat-value">42</div>
             <p class="metric-label">kWh</p>
         </div>
-        
+
         <div class="card">
             <p class="metric-label">Air Quality Trend</p>
             <div class="improvement">↑ Better</div>
