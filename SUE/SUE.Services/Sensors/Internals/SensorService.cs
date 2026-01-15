@@ -43,7 +43,6 @@ namespace SUE.Services.Users.Internals
                 {
                     Id = Guid.NewGuid(),
                     PostalCode = model.PostalCode,
-                    RegionCode = model.RegionCode,
                     HouseholdSize = 1
                 };
                 _context.Households.Add(household);

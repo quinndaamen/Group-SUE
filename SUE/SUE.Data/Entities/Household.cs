@@ -5,8 +5,9 @@ public class Household
     public Guid Id { get; set; }
 
     // Location & energy info
-    public string RegionCode { get; set; } = null!;
     public string PostalCode { get; set; } = null!;
+    
+    public string P1ID { get; set; } = null!;
 
     public int HouseholdSize { get; set; }
 

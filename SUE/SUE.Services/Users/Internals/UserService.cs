@@ -31,11 +31,19 @@ namespace SUE.Services.Users.Internals
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new UserRegistrationException($"Failed to create user: {errors}");
+            }
 
-            // 2️⃣ Find or create Household
+            // 2️⃣ Transaction for household, profile, and sensors
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            // 3️⃣ Find or create Household (based on P1ID + PostalCode)
             var household = await _context.Households
-                .FirstOrDefaultAsync(h => h.PostalCode == model.PostalCode);
+                .FirstOrDefaultAsync(h => h.P1ID == model.P1ID && h.PostalCode == model.PostalCode);
+
+            bool isNewHousehold = false;
 
             if (household == null)
             {
@@ -43,19 +51,19 @@ namespace SUE.Services.Users.Internals
                 {
                     Id = Guid.NewGuid(),
                     PostalCode = model.PostalCode,
-                    RegionCode = model.RegionCode,
-                    HouseholdSize = 1
+                    HouseholdSize = 1,
+                    P1ID = model.P1ID
                 };
                 _context.Households.Add(household);
+                isNewHousehold = true;
             }
             else
             {
                 household.HouseholdSize++;
+                _context.Households.Update(household);
             }
 
-            await _context.SaveChangesAsync();
-
-            // 3️⃣ Create UserProfile
+            // 4️⃣ Create UserProfile
             var profile = new UserProfile
             {
                 ApplicationUserId = user.Id,
@@ -65,25 +73,24 @@ namespace SUE.Services.Users.Internals
             };
             _context.UserProfiles.Add(profile);
 
-            // 4️⃣ Seed SensorNodes (indoor/outdoor)
-            var indoorNode = new SensorNode
+            // 5️⃣ Seed indoor SensorNode only
+            if (isNewHousehold)
             {
-                Id = Guid.NewGuid(),
-                HouseholdId = household.Id,
-                Location = SensorNode.SensorLocation.Indoor,
-                SensorName = "Indoor Node 1"
-            };
-            var outdoorNode = new SensorNode
-            {
-                Id = Guid.NewGuid(),
-                HouseholdId = household.Id,
-                Location = SensorNode.SensorLocation.Outdoor,
-                SensorName = "Outdoor Node 1"
-            };
-            _context.SensorNodes.AddRange(indoorNode, outdoorNode);
+                var indoorSensor = new SensorNode
+                {
+                    Id = Guid.NewGuid(),
+                    HouseholdId = household.Id,
+                    Location = SensorNode.SensorLocation.Indoor,
+                    SensorName = "Indoor Node 1"
+                };
+                _context.SensorNodes.Add(indoorSensor);
+            }
 
+            // 6️⃣ Commit everything
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
+            // 7️⃣ Return DTO
             return new UserProfileDto
             {
                 UserId = user.Id,
@@ -91,5 +98,10 @@ namespace SUE.Services.Users.Internals
                 HouseholdId = household.Id
             };
         }
+    }
+
+    public class UserRegistrationException : Exception
+    {
+        public UserRegistrationException(string message) : base(message) { }
     }
 }

@@ -7,6 +7,7 @@
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string PostalCode { get; set; } = null!;
-        public string RegionCode { get; set; } = null!;
+        public string P1ID { get; set; } = null!;
+        
     }
 }

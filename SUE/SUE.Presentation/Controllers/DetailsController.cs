@@ -22,12 +22,14 @@ namespace SUE.Presentation.Controllers
             return View();
         }
 
+        
+
         // GET: /Electricity/Details
-        public async Task<IActionResult> Details()
+        public async Task<IActionResult> Electricity()
         {
             List<CleanForecastItem> forecast = await _priceService.GetForecastAsync();
 
-            return View(forecast); // automatically looks for Details.cshtml
+            return View(forecast);
         }
     }
 }
