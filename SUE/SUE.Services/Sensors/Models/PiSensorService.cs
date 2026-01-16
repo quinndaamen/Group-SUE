@@ -1,69 +1,62 @@
-﻿using MQTTnet.Client;
-using System;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Client.Options;
-using MQTTnet.Protocol;
-using SUE.Services.Sensors.Contracts;
-using SUE.Services.Sensors.Models;
 
-class Program
+namespace SUE.Services.Sensors.Models;
+
+class PiSensorService
 {
-    // Replace with your actual SensorNode GUID from DB
-    private static readonly Guid SENSOR_NODE_ID = Guid.Parse("PUT-YOUR-SENSORNODE-GUID-HERE");
-
     static async Task Main()
     {
-        // 1️⃣ Setup DI to resolve your SensorService
-        var services = new ServiceCollection();
-        services.AddScoped<ISensorService, SensorService>(); // Your implementation
-        var serviceProvider = services.BuildServiceProvider();
-        var sensorService = serviceProvider.GetRequiredService<ISensorService>();
-
-        // 2️⃣ Create MQTT client
+        // Create factory & client
         var mqttFactory = new MqttFactory();
-        var mqttClient = mqttFactory.CreateMqttClient();
+        using var mqttClient = mqttFactory.CreateMqttClient();
 
-        // 3️⃣ Handle connection
-        mqttClient.UseConnectedHandler(async e =>
+        // Configure options
+        var options = new MqttClientOptionsBuilder()
+            .WithTcpServer("broker.hivemq.com", 1883)
+            .WithClientId($"csharp-client-{Guid.NewGuid()}")
+            .Build();
+
+        // When connected
+        mqttClient.ConnectedAsync += async e =>
         {
             Console.WriteLine("✅ Connected to MQTT broker");
 
-            await mqttClient.SubscribeAsync(new MQTTnet.Client.Subscribing.MqttClientSubscribeOptionsBuilder()
-                .WithTopicFilter("esp32/sensors", MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build());
-
+            // Subscribe after connecting
+            await mqttClient.SubscribeAsync("esp32/sensors");
             Console.WriteLine("📡 Subscribed to esp32/sensors");
-        });
+        };
 
-        // 4️⃣ Handle incoming messages
-        mqttClient.UseApplicationMessageReceivedHandler(async e =>
+        // When message received
+        mqttClient.ApplicationMessageReceivedAsync += e =>
         {
-            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+            var msg = e.ApplicationMessage;
+            if (msg is not null && msg.Payload.Length > 0)
+            {
+                var payloadBytes = msg.Payload.ToArray();
+                var payload = Encoding.UTF8.GetString(payloadBytes);
+                Console.WriteLine($"📨 Message received on '{msg.Topic}':");
+                Console.WriteLine(payload);
+            }
+            else
+            {
+                Console.WriteLine($"📨 Empty payload received on '{msg?.Topic}'");
+            }
 
-            var measurement = RawSensorParser.Parse(payload); // Your parser
-            if (measurement == null) return;
+            return Task.CompletedTask;
+        };
 
-            await sensorService.AddMeasurementAsync(SENSOR_NODE_ID, measurement);
-            Console.WriteLine($"💾 Measurement saved to DB: Temp={measurement.Temperature}, Humidity={measurement.Humidity}");
-        });
-
-        // 5️⃣ Handle disconnection
-        mqttClient.UseDisconnectedHandler(e =>
+        // When disconnected
+        mqttClient.DisconnectedAsync += e =>
         {
             Console.WriteLine("❌ Disconnected from MQTT broker");
-        });
+            return Task.CompletedTask;
+        };
 
-        // 6️⃣ Connect to broker
-        var options = new MqttClientOptionsBuilder()
-            .WithTcpServer("broker.hivemq.com", 1883)
-            .WithClientId($"sue-{Guid.NewGuid()}")
-            .Build();
-
+        // Connect
         await mqttClient.ConnectAsync(options);
+
         Console.WriteLine("Press ENTER to exit");
         Console.ReadLine();
 
