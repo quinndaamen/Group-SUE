@@ -9,7 +9,7 @@ namespace SUE.Services.Sensors.Extensions
     {
         public static IServiceCollection AddUsersServices(this IServiceCollection services)
         {
-            services.AddScoped<IUserService, SensorService>();
+            services.AddScoped<ISensorService, SensorService>();
             return services;
         }
 

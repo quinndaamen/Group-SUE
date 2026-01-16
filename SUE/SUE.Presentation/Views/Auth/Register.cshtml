@@ -2,12 +2,16 @@
 
 @{
     ViewData["Title"] = "Register";
+    Layout = "";
 }
 
 <style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
     .register-container {
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -280,7 +284,7 @@
                     </button>
                     
                     <p class="signin-link">
-                        Already have an account? <a href="#">Sign in</a>
+                        Already have an account? <a asp-controller="Auth" asp-action="Login">Sign in</a>
                     </p>
                 </form>
             </div>

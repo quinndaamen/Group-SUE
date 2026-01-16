@@ -1,0 +1,27 @@
+﻿@model IEnumerable<SUE.Data.Entities.Measurement>
+
+<h2>Sensor Output (TEST)</h2>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>Temp</th>
+        <th>Hum</th>
+        <th>AQI</th>
+        <th>kWh</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model)
+    {
+        <tr>
+            <td>@m.Timestamp.ToLocalTime()</td>
+            <td>@m.Temperature</td>
+            <td>@m.Humidity</td>
+            <td>@m.AQI_MQ135</td>
+            <td>@m.EnergyUsage</td>
+        </tr>
+    }
+    </tbody>
+</table>

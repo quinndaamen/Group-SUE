@@ -28,6 +28,8 @@
       </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="10.0.1" />
       <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.1" />
+      <PackageReference Include="Mqtt" Version="1.0.0" />
+      <PackageReference Include="MQTTClient" Version="1.0.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
       <PackageReference Include="System.IO.Ports" Version="10.0.1" />
     </ItemGroup>

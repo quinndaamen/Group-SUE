@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using SUE.Data;
 using SUE.Data.Entities;
 using SUE.Presentation.Data;
+using SUE.Services.Sensors.Contracts;
+using SUE.Services.Sensors.Internals;
 
 namespace SUE.Presentation;
 
@@ -45,6 +47,10 @@ public class Program
         builder.Services.AddRazorPages();
         builder.Services.AddData(builder.Configuration);
         builder.Services.AddHttpClient<ElectricityPriceApiClient>();
+        
+        builder.Services.AddScoped<ISensorService, SensorService>();
+        builder.Services.AddHostedService<MqttListenerService>();
+
         
         builder.Services.AddSingleton<ElectricityPriceCacheService>();
         

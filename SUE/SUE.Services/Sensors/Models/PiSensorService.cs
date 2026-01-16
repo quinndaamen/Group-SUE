@@ -1,114 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Ports;
+﻿using MQTTnet.Client;
+using System;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Client.Options;
+using MQTTnet.Protocol;
 using SUE.Services.Sensors.Contracts;
 using SUE.Services.Sensors.Models;
 
-public class PiSensorService : ISensorService
+class Program
 {
-    private readonly SerialPort _serial;
+    // Replace with your actual SensorNode GUID from DB
+    private static readonly Guid SENSOR_NODE_ID = Guid.Parse("PUT-YOUR-SENSORNODE-GUID-HERE");
 
-    public PiSensorService(string port = "/dev/ttyUSB0", int baud = 9600)
+    static async Task Main()
     {
-        _serial = new SerialPort(port, baud);
-        _serial.NewLine = "\n";
-        _serial.Open();
-    }
+        // 1️⃣ Setup DI to resolve your SensorService
+        var services = new ServiceCollection();
+        services.AddScoped<ISensorService, SensorService>(); // Your implementation
+        var serviceProvider = services.BuildServiceProvider();
+        var sensorService = serviceProvider.GetRequiredService<ISensorService>();
 
-    public Task<SensorNodeDto> CreateSensorNodeAsync(Guid householdId, string name, string location)
-    {
-        throw new NotImplementedException();
-    }
+        // 2️⃣ Create MQTT client
+        var mqttFactory = new MqttFactory();
+        var mqttClient = mqttFactory.CreateMqttClient();
 
-    public Task<IEnumerable<SensorNodeDto>> GetSensorNodesAsync(Guid householdId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<MeasurementDto> AddMeasurementAsync(Guid sensorNodeId, MeasurementDto measurement)
-    {
-        // Optionally save to DB
-        return measurement;
-    }
-
-    public async Task<IEnumerable<MeasurementDto>> GetMeasurementsAsync(Guid sensorNodeId, DateTime? from = null, DateTime? to = null)
-    {
-        var measurements = new List<MeasurementDto>();
-        var currentMeasurement = new MeasurementDto();
-
-        while (_serial.BytesToRead > 0)
+        // 3️⃣ Handle connection
+        mqttClient.UseConnectedHandler(async e =>
         {
-            var line = _serial.ReadLine().Trim();
-            if (string.IsNullOrEmpty(line)) continue;
+            Console.WriteLine("✅ Connected to MQTT broker");
 
-            if (line == "!")
-            {
-                if (currentMeasurement.HasAnyData())
-                {
-                    measurements.Add(currentMeasurement);
-                    currentMeasurement = new MeasurementDto();
-                }
-                continue;
-            }
+            await mqttClient.SubscribeAsync(new MQTTnet.Client.Subscribing.MqttClientSubscribeOptionsBuilder()
+                .WithTopicFilter("esp32/sensors", MqttQualityOfServiceLevel.AtLeastOnce)
+                .Build());
 
-            try
-            {
-                // Total energy usage (kWh)
-                if (line.StartsWith("1-0:1.8.0"))
-                {
-                    var start = line.IndexOf('(') + 1;
-                    var end = line.IndexOf('*');
-                    currentMeasurement.EnergyTotalKWh = double.Parse(line[start..end]);
-                }
-                // Current power (kW)
-                else if (line.StartsWith("1-0:1.7.0"))
-                {
-                    var start = line.IndexOf('(') + 1;
-                    var end = line.IndexOf('*');
-                    currentMeasurement.CurrentPowerKW = double.Parse(line[start..end]);
-                }
-                // Temperature / Humidity / AQI
-                else if (line.StartsWith("Temp:"))
-                {
-                    var parts = line.Split(';', StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var part in parts)
-                    {
-                        var kv = part.Split(':', StringSplitOptions.RemoveEmptyEntries);
-                        if (kv.Length != 2) continue;
+            Console.WriteLine("📡 Subscribed to esp32/sensors");
+        });
 
-                        var key = kv[0].Trim();
-                        var value = kv[1].Trim();
+        // 4️⃣ Handle incoming messages
+        mqttClient.UseApplicationMessageReceivedHandler(async e =>
+        {
+            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
-                        if (key == "Temp") currentMeasurement.Temperature = double.Parse(value);
-                        else if (key == "Humid") currentMeasurement.Humidity = double.Parse(value);
-                        else if (key == "Sensor") currentMeasurement.AQI = double.Parse(value);
-                    }
-                }
-            }
-            catch
-            {
-                // ignore malformed lines
-                continue;
-            }
-        }
+            var measurement = RawSensorParser.Parse(payload); // Your parser
+            if (measurement == null) return;
 
-        if (currentMeasurement.HasAnyData())
-            measurements.Add(currentMeasurement);
+            await sensorService.AddMeasurementAsync(SENSOR_NODE_ID, measurement);
+            Console.WriteLine($"💾 Measurement saved to DB: Temp={measurement.Temperature}, Humidity={measurement.Humidity}");
+        });
 
-        return measurements;
-    }
-}
+        // 5️⃣ Handle disconnection
+        mqttClient.UseDisconnectedHandler(e =>
+        {
+            Console.WriteLine("❌ Disconnected from MQTT broker");
+        });
 
-// Extension to check if a MeasurementDto has any data
-public static class MeasurementDtoExtensions
-{
-    public static bool HasAnyData(this MeasurementDto m)
-    {
-        return m.EnergyTotalKWh.HasValue ||
-               m.CurrentPowerKW.HasValue ||
-               m.Temperature.HasValue ||
-               m.Humidity.HasValue ||
-               m.AQI.HasValue;
+        // 6️⃣ Connect to broker
+        var options = new MqttClientOptionsBuilder()
+            .WithTcpServer("broker.hivemq.com", 1883)
+            .WithClientId($"sue-{Guid.NewGuid()}")
+            .Build();
+
+        await mqttClient.ConnectAsync(options);
+        Console.WriteLine("Press ENTER to exit");
+        Console.ReadLine();
+
+        await mqttClient.DisconnectAsync();
     }
 }
