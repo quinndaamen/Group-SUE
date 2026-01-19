@@ -1,27 +1,36 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SUE.Presentation.Models;
+using SUE.Services.Sensors.Contracts;
 
 namespace SUE.Presentation.Controllers;
 
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly ISensorService _sensorService;
+
+    public HomeController(ISensorService sensorService)
     {
-        return View();
+        _sensorService = sensorService;
     }
 
-    public IActionResult Privacy()
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
+        var latest = await _sensorService.GetLatestMeasurementAsync();
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var model = new HomeDashboardViewModel
+        {
+            AQI = latest?.AQI_MQ135,
+            Temperature = latest?.Temperature,
+            Humidity = latest?.Humidity,
+
+            CurrentPowerKW = latest?.CurrentPowerKW,
+            TodayEnergyKWh = await _sensorService.GetTodayEnergyUsageAsync(),
+            MonthEnergyKWh = await _sensorService.GetMonthEnergyUsageAsync()
+        };
+
+        return View(model);
     }
 }

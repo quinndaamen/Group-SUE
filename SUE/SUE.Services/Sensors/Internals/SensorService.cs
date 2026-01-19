@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SUE.Data;
 using SUE.Data.Entities;
 using SUE.Services.Sensors.Contracts;
@@ -13,6 +14,9 @@ internal class SensorService : ISensorService
         _context = context;
     }
 
+    // =========================
+    // WRITE (MQTT → DB)
+    // =========================
     public async Task SaveMeasurementAsync(Guid sensorNodeId, MeasurementDto dto)
     {
         var entity = new Measurement
@@ -31,5 +35,39 @@ internal class SensorService : ISensorService
 
         _context.Measurements.Add(entity);
         await _context.SaveChangesAsync();
+    }
+
+    // =========================
+    // READ (Dashboard)
+    // =========================
+    public async Task<Measurement?> GetLatestMeasurementAsync()
+    {
+        return await _context.Measurements
+            .AsNoTracking()
+            .OrderByDescending(m => m.Timestamp)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<double?> GetTodayEnergyUsageAsync()
+    {
+        var today = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);;
+
+        return await _context.Measurements
+            .AsNoTracking()
+            .Where(m => m.Timestamp >= today)
+            .Select(m => m.EnergyUsage)
+            .MaxAsync();
+    }
+
+    public async Task<double?> GetMonthEnergyUsageAsync()
+    {
+        var now = DateTime.UtcNow;
+        var monthStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        return await _context.Measurements
+            .AsNoTracking()
+            .Where(m => m.Timestamp >= monthStart)
+            .Select(m => m.EnergyUsage)
+            .MaxAsync();
     }
 }
