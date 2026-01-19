@@ -2,23 +2,38 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using SUE.Presentation.Models;
+using SUE.Services.Sensors.Contracts;
 
 namespace SUE.Presentation.Controllers;
 
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-public class GraphController : Controller
+public class GraphsController : Controller
 {
-    public GraphController()
+    private readonly IGraphService _graphService;
+
+    public GraphsController(IGraphService graphService)
     {
-    }
-    
-    public IActionResult ElectricityGraph()
-    {
-        return View();
+        _graphService = graphService;
     }
 
-    public IActionResult AirGraph()
+    public async Task<IActionResult> Electricity()
     {
-        return View();
+        var model = new GraphsViewModel
+        {
+            ElectricityLast4Hours = await _graphService.GetElectricityLast4HoursAsync()
+        };
+
+        return View(model);
+    }
+    
+    public async Task<IActionResult> Air()
+    {
+        var model = new GraphsViewModel
+        {
+            AqiLast4Hours = await _graphService.GetAqiLast4HoursAsync()
+        };
+
+        return View(model);
     }
 }

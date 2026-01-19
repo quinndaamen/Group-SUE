@@ -309,53 +309,45 @@
 </div>
 
 <script>
-    // Sample electricity usage data (24 hours)
-    const electricityData = [
-        1.2, 1.0, 0.8, 0.7, 0.6, 0.8, 1.2, 2.1, 3.0, 3.2,
-        3.1, 3.0, 2.8, 2.5, 2.4, 2.6, 3.0, 3.8, 4.31, 4.0,
-        3.2, 2.5, 1.8, 1.3
-    ];
-    
+    // Use data from the controller
+    const electricityData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ElectricityLast4Hours));
+
     const graphElement = document.getElementById('electricityGraph');
-    
-    // Generate graph points
-    electricityData.forEach((value, index) => {
+
+    electricityData.forEach((item, index) => {
+        const value = item.value; // kW
+        const hour = item.hour;
+
         const pointContainer = document.createElement('div');
         pointContainer.className = 'data-point';
-        
+
         const point = document.createElement('div');
         point.className = 'point-value';
-        
-        // Calculate height percentage (max 8 kW scale)
+
+        // Height based on max 8 kW
         const heightPercent = (value / 8) * 100;
         point.style.height = `${heightPercent}%`;
         point.style.setProperty('--point-height', `${heightPercent}%`);
-        
-        // Add tooltip
-        point.title = `${index}:00 - ${value.toFixed(2)} kW`;
-        
+
+        point.title = `${hour.toString().padStart(2,'0')}:00 - ${value.toFixed(2)} kW`;
+
         pointContainer.appendChild(point);
-        
-        // Add time label for every 3rd hour
+
+        // Label every 3rd hour
         if (index % 3 === 0) {
             const label = document.createElement('div');
             label.className = 'point-label';
-            label.textContent = `${index.toString().padStart(2, '0')}:00`;
+            label.textContent = `${hour.toString().padStart(2,'0')}:00`;
             pointContainer.appendChild(label);
         }
-        
+
         graphElement.appendChild(pointContainer);
     });
-    
-    // Add interactivity
+
+    // Interactivity
     const points = document.querySelectorAll('.point-value');
     points.forEach(point => {
-        point.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.2)';
-        });
-        
-        point.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-        });
+        point.addEventListener('mouseenter', function() { this.style.transform = 'scale(1.2)'; });
+        point.addEventListener('mouseleave', function() { this.style.transform = 'scale(1)'; });
     });
 </script>

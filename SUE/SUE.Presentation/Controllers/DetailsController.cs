@@ -22,8 +22,6 @@ namespace SUE.Presentation.Controllers
             return View();
         }
 
-        
-
         // GET: /Electricity/Details
         public async Task<IActionResult> Electricity()
         {

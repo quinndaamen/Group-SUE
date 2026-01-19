@@ -11,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<MqttMessageStore>();
         services.AddScoped<ISensorService, SensorService>();
+        services.AddScoped<IGraphService, GraphService>();
         services.AddHostedService<MqttBackgroundService>();
         
         return services;

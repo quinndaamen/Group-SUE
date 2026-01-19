@@ -353,105 +353,77 @@
 </div>
 
 <script>
-    // Sample air quality data (24 hours)
-    const airQualityData = [
-        45, 42, 40, 38, 36, 35, 34, 33, 32, 31,
-        30, 31, 33, 35, 38, 40, 42, 44, 46, 48,
-        50, 52, 55, 61
-    ];
-    
+    // Use data passed from the controller
+    const airQualityData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AqiLast4Hours));
+
     const graphElement = document.getElementById('airQualityGraph');
-    
-    // Generate graph points
-    airQualityData.forEach((value, index) => {
+
+    airQualityData.forEach((item, index) => {
+        const value = item.value; // AQI value
+        const hour = item.hour;
+
         const pointContainer = document.createElement('div');
         pointContainer.className = 'data-point';
-        
+
         const point = document.createElement('div');
         point.className = 'point-value';
-        
-        // Calculate height percentage (max 80 AQI scale)
+
+        // Height based on max 80 AQI
         const heightPercent = (value / 80) * 100;
         point.style.height = `${heightPercent}%`;
         point.style.setProperty('--point-height', `${heightPercent}%`);
-        
-        // Determine AQI color
-        if (value <= 50) {
-            point.style.backgroundColor = '#00C950'; // Good
-        } else if (value <= 100) {
-            point.style.backgroundColor = '#FFD700'; // Moderate
-        } else {
-            point.style.backgroundColor = '#FF8C00'; // Unhealthy
-        }
-        
-        // Add tooltip
-        point.title = `${index}:00 - ${value} AQI`;
-        
+
+        // Color based on AQI
+        if (value <= 50) point.style.backgroundColor = '#00C950';
+        else if (value <= 100) point.style.backgroundColor = '#FFD700';
+        else point.style.backgroundColor = '#FF8C00';
+
+        point.title = `${hour.toString().padStart(2,'0')}:00 - ${value} AQI`;
+
         pointContainer.appendChild(point);
-        
-        // Add time label for every 3rd hour
+
+        // Show label for every 3rd hour
         if (index % 3 === 0) {
             const label = document.createElement('div');
             label.className = 'point-label';
-            label.textContent = `${index.toString().padStart(2, '0')}:00`;
+            label.textContent = `${hour.toString().padStart(2,'0')}:00`;
             pointContainer.appendChild(label);
         }
-        
+
         graphElement.appendChild(pointContainer);
     });
-    
-    // Add interactivity
+
+    // Interactivity
     const points = document.querySelectorAll('.point-value');
     points.forEach(point => {
         point.addEventListener('mouseenter', function() {
-            const originalColor = this.style.backgroundColor;
             this.style.transform = 'scale(1.2)';
             this.style.filter = 'brightness(1.2)';
         });
-        
         point.addEventListener('mouseleave', function() {
             this.style.transform = 'scale(1)';
             this.style.filter = 'brightness(1)';
         });
     });
-    
-    // Update AQI status based on value
+
+    // Update current AQI
+    const latestAqi = airQualityData.length > 0 ? airQualityData[airQualityData.length - 1].value : 0;
     function updateAqiStatus(value, element) {
-        let status = '';
-        let color = '';
-        
-        if (value <= 50) {
-            status = 'Good';
-            color = '#00C950';
-        } else if (value <= 100) {
-            status = 'Moderate';
-            color = '#FFD700';
-        } else if (value <= 150) {
-            status = 'Unhealthy for Sensitive Groups';
-            color = '#FF8C00';
-        } else if (value <= 200) {
-            status = 'Unhealthy';
-            color = '#FF4500';
-        } else if (value <= 300) {
-            status = 'Very Unhealthy';
-            color = '#8B0000';
-        } else {
-            status = 'Hazardous';
-            color = '#800080';
-        }
-        
+        let status = '', color = '';
+        if (value <= 50) { status = 'Good'; color = '#00C950'; }
+        else if (value <= 100) { status = 'Moderate'; color = '#FFD700'; }
+        else if (value <= 150) { status = 'Unhealthy for Sensitive Groups'; color = '#FF8C00'; }
+        else if (value <= 200) { status = 'Unhealthy'; color = '#FF4500'; }
+        else if (value <= 300) { status = 'Very Unhealthy'; color = '#8B0000'; }
+        else { status = 'Hazardous'; color = '#800080'; }
+
         if (element) {
             element.textContent = status;
             element.style.color = color;
-            // Update indicator color
             const indicator = element.querySelector('.aqi-indicator');
-            if (indicator) {
-                indicator.style.backgroundColor = color;
-            }
+            if (indicator) indicator.style.backgroundColor = color;
         }
     }
-    
-    // Update status for current AQI
-    const currentAqi = 31;
-    updateAqiStatus(currentAqi, document.querySelector('.stat-status'));
+
+    updateAqiStatus(latestAqi, document.querySelector('.stat-status'));
 </script>
