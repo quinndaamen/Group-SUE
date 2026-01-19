@@ -17,8 +17,6 @@ public class Measurement
     public double? AQI_MQ135 { get; set; }
     
     // P1
-    public double? EnergyUsage { get; set; } 
-    
-    
-
+    public double? EnergyUsage { get; set; }
+    public double? CurrentPowerKW { get; set; }
 }

@@ -5,7 +5,6 @@ using SUE.Data;
 using SUE.Data.Entities;
 using SUE.Presentation.Data;
 using SUE.Services.Sensors;
-using SUE.Services.Sensors.Models;
 
 namespace SUE.Presentation;
 
@@ -49,9 +48,7 @@ public class Program
         builder.Services.AddHttpClient<ElectricityPriceApiClient>();
         
         builder.Services.AddSingleton<ElectricityPriceCacheService>();
-        // register store + hosted background MQTT service
-        builder.Services.AddSingleton<MqttMessageStore>();
-        builder.Services.AddHostedService<MqttBackgroundService>();
+        builder.Services.AddMqttService();
         
         var app = builder.Build();
 

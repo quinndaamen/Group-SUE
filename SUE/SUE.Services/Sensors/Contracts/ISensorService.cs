@@ -7,9 +7,6 @@ namespace SUE.Services.Sensors.Contracts
 {
     public interface ISensorService
     {
-        Task<SensorNodeDto> CreateSensorNodeAsync(Guid householdId, string name, string location);
-        Task<IEnumerable<SensorNodeDto>> GetSensorNodesAsync(Guid householdId);
-        Task<MeasurementDto> AddMeasurementAsync(Guid sensorNodeId, MeasurementDto measurement);
-        Task<MeasurementDto> GetMeasurementsAsync();
+        Task SaveMeasurementAsync(Guid sensorNodeId, MeasurementDto measurement);
     }
 }
