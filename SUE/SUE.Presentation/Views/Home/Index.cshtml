@@ -6,7 +6,7 @@
     body {
         background-color: #f8f9fa;
     }
-    
+
     .dashboard {
         padding: 20px;
         min-height: 100vh;
@@ -40,7 +40,7 @@
         background: white;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
         height: 100%;
         transition: 0.2s;
@@ -51,7 +51,7 @@
 
     .card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
     }
 
     .metric-value {
@@ -244,7 +244,7 @@
                 <div class="temperature-box">
                     <p class="metric-label">vs. Last Month</p>
                     <div class="improvement">
-                        @if(Model.ImprovementPercent != null)
+                        @if (Model.ImprovementPercent != null)
                         {
                             <text>↓ @Model.ImprovementPercent.ToString()% Lower</text>
                         }

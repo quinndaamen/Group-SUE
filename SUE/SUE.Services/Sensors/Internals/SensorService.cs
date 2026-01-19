@@ -15,7 +15,7 @@ internal class SensorService : ISensorService
     }
 
     // =========================
-    // WRITE (MQTT → DB)
+    // WRITE
     // =========================
     public async Task SaveMeasurementAsync(Guid sensorNodeId, MeasurementDto dto)
     {
@@ -23,14 +23,14 @@ internal class SensorService : ISensorService
         {
             Id = Guid.NewGuid(),
             SensorNodeId = sensorNodeId,
-            Timestamp = dto.Timestamp,
+            Timestamp = DateTime.UtcNow,
 
             Temperature = dto.Temperature,
             Humidity = dto.Humidity,
             AQI_MQ135 = dto.AQI,
 
             EnergyUsage = dto.EnergyTotalKWh,
-            CurrentPowerKW = dto.CurrentPowerKW
+            CurrentPowerKW = dto.CurrentPowerKW,
         };
 
         _context.Measurements.Add(entity);
@@ -38,7 +38,7 @@ internal class SensorService : ISensorService
     }
 
     // =========================
-    // READ (Dashboard)
+    // READ
     // =========================
     public async Task<Measurement?> GetLatestMeasurementAsync()
     {
@@ -50,13 +50,23 @@ internal class SensorService : ISensorService
 
     public async Task<double?> GetTodayEnergyUsageAsync()
     {
-        var today = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);;
+        var today = DateTime.UtcNow.Date;
 
-        return await _context.Measurements
-            .AsNoTracking()
+        var first = await _context.Measurements
             .Where(m => m.Timestamp >= today)
+            .OrderBy(m => m.Timestamp)
             .Select(m => m.EnergyUsage)
-            .MaxAsync();
+            .FirstOrDefaultAsync();
+
+        var last = await _context.Measurements
+            .Where(m => m.Timestamp >= today)
+            .OrderByDescending(m => m.Timestamp)
+            .Select(m => m.EnergyUsage)
+            .FirstOrDefaultAsync();
+
+        return first.HasValue && last.HasValue
+            ? last.Value - first.Value
+            : 0;
     }
 
     public async Task<double?> GetMonthEnergyUsageAsync()
@@ -64,10 +74,20 @@ internal class SensorService : ISensorService
         var now = DateTime.UtcNow;
         var monthStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        return await _context.Measurements
-            .AsNoTracking()
+        var first = await _context.Measurements
             .Where(m => m.Timestamp >= monthStart)
+            .OrderBy(m => m.Timestamp)
             .Select(m => m.EnergyUsage)
-            .MaxAsync();
+            .FirstOrDefaultAsync();
+
+        var last = await _context.Measurements
+            .Where(m => m.Timestamp >= monthStart)
+            .OrderByDescending(m => m.Timestamp)
+            .Select(m => m.EnergyUsage)
+            .FirstOrDefaultAsync();
+
+        return first.HasValue && last.HasValue
+            ? last.Value - first.Value
+            : 0;
     }
 }

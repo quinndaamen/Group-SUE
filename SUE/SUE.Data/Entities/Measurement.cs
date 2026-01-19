@@ -8,7 +8,7 @@ public class Measurement
     public Guid SensorNodeId { get; set; }
     public SensorNode SensorNode { get; set; } = null!;
     
-    public string P1ID { get; set; }
+    public string? P1ID { get; set; }
 
     public DateTime Timestamp { get; set; }
     // AIR DHT11 + MQ135
