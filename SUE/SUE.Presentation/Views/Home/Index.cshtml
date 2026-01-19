@@ -167,13 +167,13 @@
     <div class="row">
         <!-- AQI Card -->
         <div class="col-md-6">
-            <a asp-controller="Details" asp-action="AirQuality" class="card main-card">
+            <a asp-controller="Details" asp-action="Air" class="card main-card">
                 <h2>Air Quality</h2>
                 <p class="metric-label">Real-time monitoring</p>
 
                 <div class="monitoring-section aqi-section">
                     <p class="metric-label">Air Quality Index</p>
-                    <div class="metric-value aqi-value">@Model.AQI?.ToString("0") ?? "—"</div>
+                    <div class="metric-value aqi-value">@(Model.AQI?.ToString("0") ?? "—")</div>
                     <p class="metric-label">AQI</p>
                     <p class="metric-label">Live monitoring</p>
                 </div>
@@ -191,13 +191,13 @@
                 <div class="stats-grid">
                     <div class="stat-box">
                         <p class="metric-label">CO₂</p>
-                        <div class="stat-value">@Model.CO2?.ToString("0") ?? "—"</div>
+                        <div class="stat-value">@(Model.CO2?.ToString("0") ?? "—") </div>
                         <p class="stat-unit">ppm</p>
                     </div>
 
                     <div class="stat-box">
                         <p class="metric-label">Humidity</p>
-                        <div class="stat-value">@Model.Humidity?.ToString("0") ?? "—"</div>
+                        <div class="stat-value">@(Model.Humidity?.ToString("0") ?? "—")</div>
                         <p class="stat-unit">%</p>
                     </div>
                 </div>
@@ -205,7 +205,7 @@
                 <div class="temperature-box">
                     <p class="metric-label">Temperature</p>
                     <p class="metric-label">Outside Temperature</p>
-                    <div class="temp-value">@Model.Temperature?.ToString("0.0")°C</div>
+                    <div class="temp-value">@(Model.Temperature?.ToString("0.0"))°C</div>
                 </div>
             </a>
         </div>
@@ -218,26 +218,26 @@
 
                 <div class="monitoring-section power-section">
                     <p class="metric-label">Current Usage</p>
-                    <div class="metric-value power-value">@Model.CurrentPowerKW?.ToString("0.0") ?? "—"</div>
+                    <div class="metric-value power-value">@(Model.CurrentPowerKW?.ToString("0.0") ?? "—")</div>
                     <p class="metric-label">kW</p>
                     <p class="metric-label">Live monitoring</p>
                 </div>
 
                 <div class="stat-box" style="margin: 15px 0;">
                     <p class="metric-label">Today's Usage</p>
-                    <div class="stat-value">@Model.TodayEnergyKWh?.ToString("0.0") ?? "—"</div>
+                    <div class="stat-value">@(Model.TodayEnergyKWh?.ToString("0.0") ?? "—")</div>
                     <p class="metric-label">kWh</p>
                 </div>
 
                 <div class="row" style="margin: 15px 0;">
                     <div class="col-8">
                         <p class="metric-label">This Month</p>
-                        <div class="stat-value">@Model.MonthEnergyKWh?.ToString("0") ?? "—"</div>
+                        <div class="stat-value">@(Model.MonthEnergyKWh?.ToString("0") ?? "—")</div>
                         <p class="metric-label">kWh</p>
                     </div>
                     <div class="col-4 text-right">
                         <p class="metric-label">Estimated Cost</p>
-                        <div class="cost">$@Model.EstimatedCost?.ToString("0.0") ?? "—"</div>
+                        <div class="cost">$@(Model.EstimatedCost?.ToString("0.0") ?? "—")</div>
                     </div>
                 </div>
 
@@ -262,24 +262,24 @@
     <div class="small-cards">
         <div class="card">
             <p class="metric-label">Devices Online</p>
-            <div class="stat-value">@Model.DevicesOnline ?? 0</div>
+            <div class="stat-value">@(Model.DevicesOnline ?? 0)</div>
         </div>
 
         <div class="card">
             <p class="metric-label">Active Rooms</p>
-            <div class="stat-value">@Model.ActiveRooms ?? 0</div>
+            <div class="stat-value">@(Model.ActiveRooms ?? 1)</div>
         </div>
 
         <div class="card">
             <p class="metric-label">Daily Average</p>
-            <div class="stat-value">@Model.TodayEnergyKWh?.ToString("0.0") ?? "—"</div>
+            <div class="stat-value">@(Model.TodayEnergyKWh?.ToString("0.0") ?? "—")</div>
             <p class="metric-label">kWh</p>
         </div>
 
         <div class="card">
             <p class="metric-label">Air Quality Trend</p>
             <div class="improvement">
-                @Model.AQTrend ?? "—"
+                @(Model.AQTrend?.ToString("0.0") ?? "—")
             </div>
         </div>
     </div>

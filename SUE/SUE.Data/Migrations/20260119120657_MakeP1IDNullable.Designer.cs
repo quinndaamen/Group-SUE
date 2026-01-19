@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SUE.Data;
@@ -11,9 +12,11 @@ using SUE.Data;
 namespace SUE.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260119120657_MakeP1IDNullable")]
+    partial class MakeP1IDNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,7 +266,7 @@ namespace SUE.Data.Migrations
                     b.Property<string>("P1ID")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("SensorNodeId")
+                    b.Property<Guid>("SensorNodeId")
                         .HasColumnType("uuid");
 
                     b.Property<double?>("Temperature")
@@ -411,9 +414,13 @@ namespace SUE.Data.Migrations
 
             modelBuilder.Entity("SUE.Data.Entities.Measurement", b =>
                 {
-                    b.HasOne("SUE.Data.Entities.SensorNode", null)
+                    b.HasOne("SUE.Data.Entities.SensorNode", "SensorNode")
                         .WithMany("Measurements")
-                        .HasForeignKey("SensorNodeId");
+                        .HasForeignKey("SensorNodeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SensorNode");
                 });
 
             modelBuilder.Entity("SUE.Data.Entities.SensorNode", b =>

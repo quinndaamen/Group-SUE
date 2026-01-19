@@ -22,7 +22,6 @@ internal class SensorService : ISensorService
         var entity = new Measurement
         {
             Id = Guid.NewGuid(),
-            SensorNodeId = sensorNodeId,
             Timestamp = DateTime.UtcNow,
 
             Temperature = dto.Temperature,

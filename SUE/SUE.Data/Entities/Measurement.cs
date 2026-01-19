@@ -5,8 +5,6 @@ namespace SUE.Data.Entities;
 public class Measurement
 {
     public Guid Id { get; set; }
-    public Guid SensorNodeId { get; set; }
-    public SensorNode SensorNode { get; set; } = null!;
     
     public string? P1ID { get; set; }
 

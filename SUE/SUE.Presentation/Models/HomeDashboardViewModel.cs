@@ -18,6 +18,6 @@ public class HomeDashboardViewModel
     public double? MonthEnergyKWh { get; set; }
     public double? ImprovementPercent { get; set; }
     public double? EstimatedCost { get; set; }
-    public int DevicesOnline { get; set; }
-    public int ActiveRooms { get; set; }
+    public int? DevicesOnline { get; set; }
+    public int? ActiveRooms { get; set; }
 }
