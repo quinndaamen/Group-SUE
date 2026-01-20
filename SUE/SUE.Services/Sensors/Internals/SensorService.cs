@@ -89,4 +89,16 @@ internal class SensorService : ISensorService
             ? last.Value - first.Value
             : 0;
     }
+    
+    public double NormalizeAqi(double rawValue)
+    {
+        // If sensor already looks like AQI, just clamp
+        if (rawValue <= 600)
+            return Math.Clamp(rawValue, 0, 500);
+
+        // Otherwise assume raw PM * 10 or similar
+        var scaled = rawValue / 10.0;
+
+        return Math.Clamp(scaled, 0, 500);
+    }
 }

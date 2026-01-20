@@ -170,7 +170,7 @@
             <a asp-controller="Details" asp-action="Air" class="card main-card">
                 <h2>Air Quality</h2>
                 <p class="metric-label">Real-time monitoring</p>
-
+                
                 <div class="monitoring-section aqi-section">
                     <p class="metric-label">Air Quality Index</p>
                     <div class="metric-value aqi-value">@(Model.AQI?.ToString("0") ?? "—")</div>
@@ -178,15 +178,19 @@
                     <p class="metric-label">Live monitoring</p>
                 </div>
 
-                <p class="quality-good">
+                <p class="quality-good" style="font-weight:500;">
                     Air Quality:
                     @(Model.AQI switch
                     {
                         <= 50 => "Good",
                         <= 100 => "Moderate",
-                        _ => "Poor"
+                        <= 150 => "Unhealthy (Sensitive)",
+                        <= 200 => "Unhealthy",
+                        <= 300 => "Very Unhealthy",
+                        _ => "Hazardous"
                     })
                 </p>
+
 
                 <div class="stats-grid">
                     <div class="stat-box">

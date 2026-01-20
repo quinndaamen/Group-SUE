@@ -13,5 +13,6 @@ namespace SUE.Services.Sensors.Contracts
         Task<Measurement?> GetLatestMeasurementAsync();
         Task<double?> GetTodayEnergyUsageAsync();
         Task<double?> GetMonthEnergyUsageAsync();
+        double NormalizeAqi(double rawValue);
     }
 }

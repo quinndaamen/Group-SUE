@@ -22,7 +22,7 @@ public class HomeController : Controller
 
         var model = new HomeDashboardViewModel
         {
-            AQI = latest?.AQI_MQ135,
+            AQI = _sensorService.NormalizeAqi((double)latest!.AQI_MQ135!),
             Temperature = latest?.Temperature,
             Humidity = latest?.Humidity,
 

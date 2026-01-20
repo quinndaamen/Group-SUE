@@ -1,429 +1,273 @@
-﻿@{
+﻿@using SUE.Services.Sensors.Models
+@model GraphsViewModel
+@{
     ViewData["Title"] = "Air Quality Graph";
 }
+
 <style>
-    body {
-        background-color: #f8f9fa;
+    body { 
+        background-color: #f8f9fa; 
     }
     
-    .dashboard {
-        padding: 20px;
-        min-height: 100vh;
+    .dashboard { 
+        padding: 20px; min-height: 100vh; 
     }
     
-    .dashboard h1 {
+    .dashboard h1 { 
         font-size: 24px;
         font-weight: bold;
         color: #0A0A0A;
-        margin-bottom: 5px;
+        margin-bottom: 5px; 
     }
     
-    .subtitle {
-        color: #717182;
-        font-size: 16px;
-        margin-bottom: 20px;
+    .subtitle { 
+        color: #717182; 
+        font-size: 16px; 
+        margin-bottom: 20px; 
     }
     
-    .card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
+    .card { 
+        background: white; 
+        border-radius: 12px; 
+        padding: 20px; 
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
+        margin-bottom: 20px; 
     }
     
-    .metric-label {
-        color: #717182;
-        font-size: 14px;
-        margin-bottom: 5px;
+    .metric-label { 
+        color: #717182; 
+        font-size: 14px; 
+        margin-bottom: 5px; 
     }
     
-    .metric-value {
-        font-size: 24px;
-        font-weight: bold;
-        color: #0A0A0A;
-        margin: 5px 0;
+    .metric-value { 
+        font-size: 24px; 
+        font-weight: bold; 
+        color: #0A0A0A; 
+        margin: 5px 0; 
     }
     
-    .metric-value-large {
-        font-size: 36px;
-        font-weight: bold;
-        margin: 15px 0;
+    .metric-value-large { 
+        font-size: 36px; 
+        font-weight: bold; 
+        margin: 15px 0; 
     }
     
-    .aqi-good {
-        color: #00C950;
-        font-weight: 500;
+    .graph-container { 
+        position: relative; 
+        height: 350px; 
+        width: 100%; 
+        margin: 20px 0; 
     }
     
-    /* Graph Container Styles */
-    .graph-container {
-        position: relative;
-        height: 350px;
-        width: 100%;
-        margin: 20px 0;
+    .graph-axes { 
+        position: absolute; 
+        top: 0; 
+        left: 50px; 
+        right: 20px; 
+        bottom: 50px; 
+        border-left: 1px solid #e5e7eb; 
+        border-bottom: 1px solid #e5e7eb; 
     }
     
-    .graph-axes {
-        position: absolute;
-        top: 0;
-        left: 50px;
-        right: 20px;
-        bottom: 50px;
-        border-left: 1px solid #e5e7eb;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .y-axis {
-        position: absolute;
-        left: -50px;
-        top: 0;
-        bottom: 0;
-        width: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+    .y-axis { 
+        position: absolute; 
+        left: -50px; 
+        top: 0; 
+        bottom: 0; 
+        width: 40px; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: space-between; 
     }
     
     .y-label {
-        color: #717182;
-        font-size: 12px;
-        text-align: right;
-        padding-right: 10px;
+        color: #717182; 
+        font-size: 12px; 
+        text-align: right; 
+        padding-right: 10px; 
     }
     
-    .x-axis {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: -40px;
-        height: 40px;
-        display: flex;
-        justify-content: space-between;
+    .x-axis { 
+        position: absolute; 
+        left: 0; 
+        right: 0; 
+        bottom: -40px; 
+        height: 40px; 
+        display: flex; 
+        justify-content: space-between; 
     }
     
-    .x-label {
-        color: #717182;
-        font-size: 12px;
-        text-align: center;
-        width: 40px;
-        transform: rotate(-45deg);
-        transform-origin: top left;
+    .x-label { 
+        color: #717182; 
+        font-size: 12px; 
+        text-align: center; 
+        width: 40px; 
+        transform: rotate(-45deg); 
+        transform-origin: top left; 
     }
     
-    .graph-line {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 100%;
-        display: flex;
-        align-items: flex-end;
+    .graph-line { 
+        position: absolute; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        height: 100%; 
+        display: flex; 
+        align-items: flex-end; 
     }
     
-    .data-point {
-        flex: 1;
-        position: relative;
-        height: 100%;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
+    .stats-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 20px; 
+        margin-top: 30px; 
     }
     
-    .point-value {
-        height: var(--point-height, 50%);
-        width: 8px;
-        background-color: #155DFC;
-        border-radius: 4px;
-        transition: height 0.3s ease;
+    .stat-card { 
+        background: white; 
+        border-radius: 12px; 
+        padding: 24px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        height: 100%; 
     }
     
-    .point-value:hover {
-        background-color: #3B82F6;
+    .stat-card-highlight { 
+        background: linear-gradient(148deg, rgba(219, 234, 254, 1) 0%, rgba(239, 246, 255, 1) 100%); 
     }
     
-    .point-label {
-        position: absolute;
-        bottom: -25px;
-        font-size: 11px;
-        color: #717182;
-        transform: rotate(-45deg);
-        white-space: nowrap;
+    .stat-title { 
+        color: #717182; font-size: 14px; margin-bottom: 8px; 
     }
     
-    /* Stats Cards Grid */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-top: 30px;
+    .stat-number { 
+        font-size: 32px; 
+        font-weight: bold; 
+        color: #0A0A0A; 
+        margin-bottom: 8px; 
     }
     
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        height: 100%;
+    .stat-status { 
+        color: #00C950; 
+        font-weight: 500; 
+        font-size: 16px; 
     }
     
-    .stat-card-highlight {
-        background: linear-gradient(148deg, rgba(219, 234, 254, 1) 0%, rgba(239, 246, 255, 1) 100%);
+    .stat-unit { 
+        font-size: 16px; 
+        color: #717182; 
+        margin-left: 4px; 
     }
     
-    .stat-title {
-        color: #717182;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-    
-    .stat-number {
-        font-size: 32px;
-        font-weight: bold;
-        color: #0A0A0A;
-        margin-bottom: 8px;
-    }
-    
-    .stat-status {
-        color: #00C950;
-        font-weight: 500;
-        font-size: 16px;
-    }
-    
-    .stat-unit {
-        font-size: 16px;
-        color: #717182;
-        margin-left: 4px;
-    }
-    
-    /* Header */
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-    
-    .header-buttons {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .nav-button {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 8px 16px;
-        color: #0A0A0A;
-        text-decoration: none;
-        font-size: 14px;
-        transition: all 0.2s;
-        cursor: pointer;
-    }
-    
-    .nav-button:hover {
-        background: #f8f9fa;
-        border-color: #d1d5db;
-    }
-    
-    .nav-button.active {
-        background: #000000;
-        color: white;
-        border-color: #000000;
-    }
-    
-    /* AQI Color Indicators */
-    .aqi-indicator {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 8px;
-    }
-    
-    .aqi-good-indicator {
-        background-color: #00C950;
-    }
-    
-    .aqi-moderate-indicator {
-        background-color: #FFD700;
-    }
-    
-    .aqi-unhealthy-indicator {
-        background-color: #FF8C00;
+    .page-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 30px; 
     }
 </style>
 
+@{
+    // Safe calculations with explicit type
+    var avgAqi = Model.AqiLast4Hours.Any() 
+        ? Math.Round((decimal)Model.AqiLast4Hours.Average((HourlyValueDto a) => a.Value)) 
+        : 0;
+    var minAqi = Model.AqiLast4Hours.Any() 
+        ? Model.AqiLast4Hours.Min((HourlyValueDto a) => a.Value) 
+        : 0;
+    var maxAqi = Model.AqiLast4Hours.Any() 
+        ? Model.AqiLast4Hours.Max((HourlyValueDto a) => a.Value) 
+        : 0;
+}
+
 <div class="dashboard">
-    <!-- Header -->
     <div class="page-header">
         <div>
             <h1>S.U.E - Air Quality</h1>
-            <p class="subtitle">Eindhoven, North Brabant - Air quality index over the last 24 hours</p>
+            <p class="subtitle">Eindhoven, North Brabant - Air quality index over the last 4 hours</p>
         </div>
     </div>
 
-    <!-- Graph Card -->
     <div class="card">
-        <h2>24-Hour Air Quality</h2>
+        <h2>4-Hour Air Quality</h2>
         <p class="metric-label">Hourly AQI measurements</p>
-        
         <div class="graph-container">
             <div class="graph-axes">
-                <!-- Y Axis Labels -->
                 <div class="y-axis">
-                    <div class="y-label">80 AQI</div>
-                    <div class="y-label">60 AQI</div>
-                    <div class="y-label">40 AQI</div>
-                    <div class="y-label">20 AQI</div>
+                    <div class="y-label">300 AQI</div>
+                    <div class="y-label">200 AQI</div>
+                    <div class="y-label">150 AQI</div>
+                    <div class="y-label">100 AQI</div>
+                    <div class="y-label">50 AQI</div>
                     <div class="y-label">0 AQI</div>
                 </div>
-                
-                <!-- X Axis Labels -->
                 <div class="x-axis">
-                    <div class="x-label">00:00</div>
-                    <div class="x-label">01:00</div>
-                    <div class="x-label">02:00</div>
-                    <div class="x-label">03:00</div>
-                    <div class="x-label">04:00</div>
-                    <div class="x-label">05:00</div>
-                    <div class="x-label">06:00</div>
-                    <div class="x-label">07:00</div>
-                    <div class="x-label">08:00</div>
-                    <div class="x-label">09:00</div>
-                    <div class="x-label">10:00</div>
-                    <div class="x-label">11:00</div>
-                    <div class="x-label">12:00</div>
-                    <div class="x-label">13:00</div>
-                    <div class="x-label">14:00</div>
-                    <div class="x-label">15:00</div>
-                    <div class="x-label">16:00</div>
-                    <div class="x-label">17:00</div>
-                    <div class="x-label">18:00</div>
-                    <div class="x-label">19:00</div>
-                    <div class="x-label">20:00</div>
-                    <div class="x-label">21:00</div>
-                    <div class="x-label">22:00</div>
-                    <div class="x-label">23:00</div>
-                    <div class="x-label">00:00</div>
+                    @foreach (var item in Model.AqiLast4Hours)
+                    {
+                        <div class="x-label">@item.Hour:00</div>
+                    }
                 </div>
-                
-                <!-- Graph Data Points -->
-                <div class="graph-line" id="airQualityGraph">
-                    <!-- Points will be generated by JavaScript -->
-                </div>
-                
-                <!-- Current Marker -->
-                <div class="peak-marker" style="top: 25%; left: 78%; background-color: #155DFC;">
-                    Current: 31 AQI
-                </div>
+
+
+                <div class="graph-line" id="airQualityGraph"></div>
             </div>
         </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card stat-card-highlight">
             <div class="stat-title">Current AQI</div>
-            <div class="stat-number">31 <span class="stat-unit">AQI</span></div>
+            <div class="stat-number">@(Model.AqiLast4Hours.LastOrDefault()?.Value ?? 0) <span class="stat-unit">AQI</span></div>
             <div class="stat-status">
-                <span class="aqi-indicator aqi-good-indicator"></span>
                 Good
             </div>
         </div>
-        
         <div class="stat-card">
             <div class="stat-title">24h Average</div>
-            <div class="stat-number">43 <span class="stat-unit">AQI</span></div>
-            <div class="stat-status">
-                <span class="aqi-indicator aqi-good-indicator"></span>
-                Good
-            </div>
+            <div class="stat-number">@avgAqi <span class="stat-unit">AQI</span></div>
         </div>
-        
         <div class="stat-card">
             <div class="stat-title">Range (Low - High)</div>
-            <div class="stat-number">28 - 61 <span class="stat-unit">AQI</span></div>
-            <div class="stat-status">
-                <span class="aqi-indicator aqi-good-indicator"></span>
-                Good Range
-            </div>
+            <div class="stat-number">@minAqi - @maxAqi <span class="stat-unit">AQI</span></div>
         </div>
     </div>
 </div>
 
 <script>
-    // Use data passed from the controller
-    const airQualityData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AqiLast4Hours));
+    const airQualityData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.AqiLast4Hours,
+        new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }
+    ));
 
     const graphElement = document.getElementById('airQualityGraph');
 
     airQualityData.forEach((item, index) => {
-        const value = item.value; // AQI value
-        const hour = item.hour;
-
         const pointContainer = document.createElement('div');
         pointContainer.className = 'data-point';
 
         const point = document.createElement('div');
         point.className = 'point-value';
 
-        // Height based on max 80 AQI
-        const heightPercent = (value / 80) * 100;
+        const MAX_AQI = 300;
+        const heightPercent = Math.min((value / MAX_AQI) * 100, 100);
+
         point.style.height = `${heightPercent}%`;
         point.style.setProperty('--point-height', `${heightPercent}%`);
 
-        // Color based on AQI
-        if (value <= 50) point.style.backgroundColor = '#00C950';
-        else if (value <= 100) point.style.backgroundColor = '#FFD700';
+        if (item.value <= 50) point.style.backgroundColor = '#00C950';
+        else if (item.value <= 100) point.style.backgroundColor = '#FFD700';
         else point.style.backgroundColor = '#FF8C00';
 
-        point.title = `${hour.toString().padStart(2,'0')}:00 - ${value} AQI`;
-
+        point.title = `${item.hour.toString().padStart(2,'0')}:00 - ${item.value} AQI`;
         pointContainer.appendChild(point);
 
-        // Show label for every 3rd hour
         if (index % 3 === 0) {
             const label = document.createElement('div');
             label.className = 'point-label';
-            label.textContent = `${hour.toString().padStart(2,'0')}:00`;
+            label.textContent = `${item.hour.toString().padStart(2,'0')}:00`;
             pointContainer.appendChild(label);
         }
 
         graphElement.appendChild(pointContainer);
     });
-
-    // Interactivity
-    const points = document.querySelectorAll('.point-value');
-    points.forEach(point => {
-        point.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.2)';
-            this.style.filter = 'brightness(1.2)';
-        });
-        point.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.filter = 'brightness(1)';
-        });
-    });
-
-    // Update current AQI
-    const latestAqi = airQualityData.length > 0 ? airQualityData[airQualityData.length - 1].value : 0;
-    function updateAqiStatus(value, element) {
-        let status = '', color = '';
-        if (value <= 50) { status = 'Good'; color = '#00C950'; }
-        else if (value <= 100) { status = 'Moderate'; color = '#FFD700'; }
-        else if (value <= 150) { status = 'Unhealthy for Sensitive Groups'; color = '#FF8C00'; }
-        else if (value <= 200) { status = 'Unhealthy'; color = '#FF4500'; }
-        else if (value <= 300) { status = 'Very Unhealthy'; color = '#8B0000'; }
-        else { status = 'Hazardous'; color = '#800080'; }
-
-        if (element) {
-            element.textContent = status;
-            element.style.color = color;
-            const indicator = element.querySelector('.aqi-indicator');
-            if (indicator) indicator.style.backgroundColor = color;
-        }
-    }
-
-    updateAqiStatus(latestAqi, document.querySelector('.stat-status'));
 </script>
